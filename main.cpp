@@ -1,10 +1,14 @@
+#include <stdio.h>
 #include <iostream>
+#include <gen/jmpbk.h>
+#include <gen/systime.h>
 #include <gen/net/urlpar.h>
 #include <gen/net/socktcp.h>
 #include "cmdopt.h"
 
 using namespace std;
 
+//------------------------------------------------------------------------------
 void PrintHelp()
 {
     cout << "Usage: tcptest [options] HOSTURL" << endl;
@@ -17,7 +21,7 @@ void PrintHelp()
     cout << "                      And the data will be printed to the standard output" << endl;
     cout << "                      if no destination file be specified." << endl;
 }
-
+//------------------------------------------------------------------------------
 bool ExtractHostAddr(TSocketAddr &addr, const string &url)
 {
     char hostname[512] = {0};
@@ -51,14 +55,116 @@ bool ExtractHostAddr(TSocketAddr &addr, const string &url)
 
     return true;
 }
-
+//------------------------------------------------------------------------------
 bool ConnectHost(TSocketTCP &sock, const TSocketAddr &addr)
 {
     bool res = sock.Connect(addr);
     cout << "TCP connect: " << ( res ? "Succeed." : "Failed!" ) << endl;
     return res;
 }
+//------------------------------------------------------------------------------
+bool SendData(TSocketTCP &sock, const string &filename)
+{
+    FILE *srcfile = nullptr;
 
+    bool res;
+    JMPBK_BEGIN
+    {
+        if( !filename.empty() && !( srcfile = fopen(filename.c_str(), "rb") ) )
+        {
+            cerr << "ERROR: Cannot open source file: " << filename << endl;
+            JMPBK_THROW(0);
+        }
+
+        FILE *src = srcfile ? srcfile : stdin;
+
+        cout << "Sending data..." << endl;
+        sock.SetBlockMode();
+
+        size_t sentsz_total = 0;
+        while( !feof(src) )
+        {
+            uint8_t data[512];
+            size_t  datasz = fread(data, 1, sizeof(data), src);
+
+            int sentsz = sock.Send(data, datasz);
+            if( sentsz <= 0 ) JMPBK_THROW(0);
+
+            sentsz_total += sentsz;
+        }
+
+        cout << "Send finished, total " << sentsz_total << " bytes sent out." << endl;
+    }
+    JMPBK_CATCH_ALL
+    {
+        cerr << "ERROR: Send data failed!" << endl;
+    }
+    JMPBK_FINAL
+    {
+        res = !JMPBK_ERRCODE;
+    }
+    JMPBK_END
+
+    if( srcfile ) fclose(srcfile);
+
+    return res;
+}
+//------------------------------------------------------------------------------
+bool ReceiveData(TSocketTCP &sock, const string &filename)
+{
+    FILE *destfile = nullptr;
+
+    bool res;
+    JMPBK_BEGIN
+    {
+        if( !filename.empty() && !( destfile = fopen(filename.c_str(), "wb") ) )
+        {
+            cerr << "ERROR: Cannot open destination file: " << filename << endl;
+            JMPBK_THROW(0);
+        }
+
+        FILE *dest = destfile ? destfile : stdout;
+
+        cout << "Receiving data..." << endl;
+        sock.SetNonblockMode();
+
+        size_t recvsz_total = 0;
+        while(true)
+        {
+            uint8_t buf[512];
+            int recvsz = sock.Receive(buf, sizeof(buf));
+            if( recvsz > 0 )
+            {
+                fwrite(buf, 1, recvsz, dest);
+                recvsz_total += recvsz;
+            }
+            else if( recvsz < 0 )
+            {
+                break;
+            }
+            else
+            {
+                systime_sleep_fragment();
+            }
+        }
+
+        cout << "Receive finished, total " << recvsz_total << " bytes received." << endl;
+    }
+    JMPBK_CATCH_ALL
+    {
+        cerr << "ERROR: Receive data failed!" << endl;
+    }
+    JMPBK_FINAL
+    {
+        res = !JMPBK_ERRCODE;
+    }
+    JMPBK_END
+
+    if( destfile ) fclose(destfile);
+
+    return res;
+}
+//------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     TCmdOpt cmdopts;
@@ -78,5 +184,12 @@ int main(int argc, char *argv[])
     if( !ConnectHost(sock, addr) )
         return 1;
 
+    if( cmdopts.needsend && !SendData(sock, cmdopts.srcfile) )
+        return 1;
+
+    if( cmdopts.needrecv && !ReceiveData(sock, cmdopts.destfile) )
+        return 1;
+
     return 0;
 }
+//------------------------------------------------------------------------------

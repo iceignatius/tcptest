@@ -34,6 +34,9 @@
 			<Add option="-std=gnu++11" />
 			<Add directory="../igntoolkit/genutil" />
 		</Compiler>
+		<Linker>
+			<Add library="rt" />
+		</Linker>
 		<Unit filename="../igntoolkit/genutil/gen/net/ipconst.h" />
 		<Unit filename="../igntoolkit/genutil/gen/net/iptype.c">
 			<Option compilerVar="CC" />
@@ -55,6 +58,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../igntoolkit/genutil/gen/net/winwsa.h" />
+		<Unit filename="../igntoolkit/genutil/gen/systime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../igntoolkit/genutil/gen/systime.h" />
+		<Unit filename="../igntoolkit/genutil/gen/timeinf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../igntoolkit/genutil/gen/timeinf.h" />
 		<Unit filename="cmdopt.cpp" />
 		<Unit filename="cmdopt.h" />
 		<Unit filename="main.cpp" />
