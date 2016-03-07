@@ -11,6 +11,10 @@ class TCmdOpt
 public:
     bool        needhelp;
     std::string hosturl;
+    bool        needsend;
+    bool        needrecv;
+    std::string srcfile;
+    std::string destfile;
 
 public:
     TCmdOpt() { LoadDefaults(); }

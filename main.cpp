@@ -9,7 +9,13 @@ void PrintHelp()
 {
     cout << "Usage: tcptest [options] HOSTURL" << endl;
     cout << "Options:" << endl;
-    cout << "  -h, --help   Print help message." << endl;
+    cout << "  -h, --help          Print help message." << endl;
+    cout << "      --send[=FILE]   Send data to the host after the connection be established." << endl;
+    cout << "                      And the data will be read from the standard input" << endl;
+    cout << "                      if no source file be specified." << endl;
+    cout << "      --recv[=FILE]   Receive data from the host to the file." << endl;
+    cout << "                      And the data will be printed to the standard output" << endl;
+    cout << "                      if no destination file be specified." << endl;
 }
 
 bool ExtractHostAddr(TSocketAddr &addr, const string &url)
@@ -42,12 +48,15 @@ bool ExtractHostAddr(TSocketAddr &addr, const string &url)
 
     addr.SetIP(ip);
     addr.SetPort(port);
+
+    return true;
 }
 
 bool ConnectHost(TSocketTCP &sock, const TSocketAddr &addr)
 {
-    bool connres = sock.Connect(addr);
-    cout << "TCP connect: " << ( connres ? "Succeed." : "Failed!" ) << endl;
+    bool res = sock.Connect(addr);
+    cout << "TCP connect: " << ( res ? "Succeed." : "Failed!" ) << endl;
+    return res;
 }
 
 int main(int argc, char *argv[])
