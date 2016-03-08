@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <iostream>
-#include <gen/jmpbk.h>
 #include <gen/systime.h>
 #include <gen/net/urlpar.h>
 #include <gen/net/socktcp.h>
@@ -67,14 +66,11 @@ bool SendData(TSocketTCP &sock, const string &filename)
 {
     FILE *srcfile = nullptr;
 
-    bool res;
-    JMPBK_BEGIN
+    bool res = true;
+    try
     {
         if( !filename.empty() && !( srcfile = fopen(filename.c_str(), "rb") ) )
-        {
-            cerr << "ERROR: Cannot open source file: " << filename << endl;
-            JMPBK_THROW(0);
-        }
+            throw runtime_error( "Cannot open source file: " + filename );
 
         FILE *src = srcfile ? srcfile : stdin;
 
@@ -88,22 +84,18 @@ bool SendData(TSocketTCP &sock, const string &filename)
             size_t  datasz = fread(data, 1, sizeof(data), src);
 
             int sentsz = sock.Send(data, datasz);
-            if( sentsz <= 0 ) JMPBK_THROW(0);
+            if( sentsz <= 0 ) throw runtime_error("Send data failed!");
 
             sentsz_total += sentsz;
         }
 
         cout << "Send finished, total " << sentsz_total << " bytes sent out." << endl;
     }
-    JMPBK_CATCH_ALL
+    catch(exception &e)
     {
-        cerr << "ERROR: Send data failed!" << endl;
+        res = false;
+        cerr << "ERROR: " << e.what() << endl;
     }
-    JMPBK_FINAL
-    {
-        res = !JMPBK_ERRCODE;
-    }
-    JMPBK_END
 
     if( srcfile ) fclose(srcfile);
 
@@ -114,14 +106,11 @@ bool ReceiveData(TSocketTCP &sock, const string &filename)
 {
     FILE *destfile = nullptr;
 
-    bool res;
-    JMPBK_BEGIN
+    bool res = true;
+    try
     {
         if( !filename.empty() && !( destfile = fopen(filename.c_str(), "wb") ) )
-        {
-            cerr << "ERROR: Cannot open destination file: " << filename << endl;
-            JMPBK_THROW(0);
-        }
+            throw runtime_error( "Cannot open destination file: " + filename );
 
         FILE *dest = destfile ? destfile : stdout;
 
@@ -150,15 +139,11 @@ bool ReceiveData(TSocketTCP &sock, const string &filename)
 
         cout << "Receive finished, total " << recvsz_total << " bytes received." << endl;
     }
-    JMPBK_CATCH_ALL
+    catch(exception &e)
     {
-        cerr << "ERROR: Receive data failed!" << endl;
+        res = false;
+        cerr << "ERROR: " << e.what() << endl;
     }
-    JMPBK_FINAL
-    {
-        res = !JMPBK_ERRCODE;
-    }
-    JMPBK_END
 
     if( destfile ) fclose(destfile);
 
