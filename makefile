@@ -41,7 +41,6 @@ LIBDIR  :=
 CFLAGS  :=
 CFLAGS  += -Wall
 CFLAGS  += -fexceptions
-CFLAGS  += -std=gnu++11
 CFLAGS  += -O2
 LDFLAGS :=
 LDFLAGS += -s

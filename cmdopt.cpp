@@ -19,10 +19,10 @@ void TCmdOpt::LoadArgs(int argc, char *argv[])
 {
     struct option longopts[] =
     {
-        { "help" , no_argument      , nullptr, 'h' },
-        { "send" , optional_argument, nullptr, 's' },
-        { "recv" , optional_argument, nullptr, 'r' },
-        { nullptr, 0                , nullptr,  0  },
+        { "help", no_argument      , NULL, 'h' },
+        { "send", optional_argument, NULL, 's' },
+        { "recv", optional_argument, NULL, 'r' },
+        { NULL  , 0                , NULL,  0  },
     };
 
     int opt, index;

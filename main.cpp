@@ -64,7 +64,7 @@ bool ConnectHost(TSocketTCP &sock, const TSocketAddr &addr)
 //------------------------------------------------------------------------------
 bool SendData(TSocketTCP &sock, const string &filename)
 {
-    FILE *srcfile = nullptr;
+    FILE *srcfile = NULL;
 
     bool res = true;
     try
@@ -104,7 +104,7 @@ bool SendData(TSocketTCP &sock, const string &filename)
 //------------------------------------------------------------------------------
 bool ReceiveData(TSocketTCP &sock, const string &filename)
 {
-    FILE *destfile = nullptr;
+    FILE *destfile = NULL;
 
     bool res = true;
     try

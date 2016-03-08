@@ -31,7 +31,6 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add option="-std=gnu++11" />
 			<Add directory="../igntoolkit/genutil" />
 		</Compiler>
 		<Linker>
