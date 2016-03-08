@@ -35,7 +35,7 @@ TEMPDIR := temp
 INCDIR  :=
 INCDIR  += -I../igntoolkit/genutil
 ifeq ($(OS),Windows_NT)
-	INCDIR += -I../igntoolkit/wingetopt/src
+	INCDIR += -I../igntoolkit/wingetopt
 endif
 LIBDIR  :=
 CFLAGS  :=
@@ -46,7 +46,8 @@ LDFLAGS :=
 LDFLAGS += -s
 SRCS    :=
 ifeq ($(OS),Windows_NT)
-	SRCS += ../igntoolkit/wingetopt/src/getopt.c
+	SRCS += ../igntoolkit/wingetopt/getopt.c
+	SRCS += ../igntoolkit/genutil/gen/utf.c
 endif
 SRCS    += ../igntoolkit/genutil/gen/systime.c
 SRCS    += ../igntoolkit/genutil/gen/timeinf.c
@@ -129,9 +130,9 @@ $(TEMPDIR)/%.o: %.cpp
 	$(Compile-Cpp-Unit)
 
 ifeq ($(OS),Windows_NT)
-$(TEMPDIR)/%.o: wingetopt/src/%.c
+$(TEMPDIR)/%.o: ../igntoolkit/wingetopt/%.c
 	$(Compile-C-Unit)
-$(TEMPDIR)/%.o: wingetopt/src/%.cpp
+$(TEMPDIR)/%.o: ../igntoolkit/wingetopt/%.cpp
 	$(Compile-Cpp-Unit)
 endif
 
