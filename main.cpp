@@ -133,7 +133,7 @@ bool ReceiveData(TSocketTCP &sock, const string &filename)
             }
             else
             {
-                systime_sleep_fragment();
+                systime_sleep_awhile();
             }
         }
 
