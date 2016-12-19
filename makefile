@@ -33,10 +33,7 @@ endif
 OUTPUT  := $(OUTDIR)/$(OUTNAME)$(OUTEXT)
 TEMPDIR := temp
 INCDIR  :=
-INCDIR  += -I../igntoolkit/genutil
-ifeq ($(OS),Windows_NT)
-	INCDIR += -I../igntoolkit/wingetopt
-endif
+INCDIR  += -Isubmod/genutil
 LIBDIR  :=
 CFLAGS  :=
 CFLAGS  += -Wall
@@ -45,17 +42,14 @@ CFLAGS  += -O2
 LDFLAGS :=
 LDFLAGS += -s
 SRCS    :=
-ifeq ($(OS),Windows_NT)
-	SRCS += ../igntoolkit/wingetopt/getopt.c
-	SRCS += ../igntoolkit/genutil/gen/utf.c
-endif
-SRCS    += ../igntoolkit/genutil/gen/systime.c
-SRCS    += ../igntoolkit/genutil/gen/timeinf.c
-SRCS    += ../igntoolkit/genutil/gen/net/iptype.c
-SRCS    += ../igntoolkit/genutil/gen/net/sockbase.c
-SRCS    += ../igntoolkit/genutil/gen/net/socktcp.c
-SRCS    += ../igntoolkit/genutil/gen/net/urlpar.c
-SRCS    += ../igntoolkit/genutil/gen/net/winwsa.c
+SRCS    += submod/genutil/gen/utf.c
+SRCS    += submod/genutil/gen/systime.c
+SRCS    += submod/genutil/gen/timeinf.c
+SRCS    += submod/genutil/gen/net/iptype.c
+SRCS    += submod/genutil/gen/net/sockbase.c
+SRCS    += submod/genutil/gen/net/socktcp.c
+SRCS    += submod/genutil/gen/net/urlpar.c
+SRCS    += submod/genutil/gen/net/winwsa.c
 SRCS    += cmdopt.cpp
 SRCS    += main.cpp
 LIBS    :=
@@ -116,25 +110,18 @@ $(CXX) -c  $(INCDIR) $(CFLAGS) -o $@ $<
 endef
 
 -include $(DEPS)
-$(TEMPDIR)/%.o: ../igntoolkit/genutil/gen/%.c
+$(TEMPDIR)/%.o: submod/genutil/gen/%.c
 	$(Compile-C-Unit)
-$(TEMPDIR)/%.o: ../igntoolkit/genutil/gen/%.cpp
+$(TEMPDIR)/%.o: submod/genutil/gen/%.cpp
 	$(Compile-Cpp-Unit)
-$(TEMPDIR)/%.o: ../igntoolkit/genutil/gen/net/%.c
+$(TEMPDIR)/%.o: submod/genutil/gen/net/%.c
 	$(Compile-C-Unit)
-$(TEMPDIR)/%.o: ../igntoolkit/genutil/gen/net/%.cpp
+$(TEMPDIR)/%.o: submod/genutil/gen/net/%.cpp
 	$(Compile-Cpp-Unit)
 $(TEMPDIR)/%.o: %.c
 	$(Compile-C-Unit)
 $(TEMPDIR)/%.o: %.cpp
 	$(Compile-Cpp-Unit)
-
-ifeq ($(OS),Windows_NT)
-$(TEMPDIR)/%.o: ../igntoolkit/wingetopt/%.c
-	$(Compile-C-Unit)
-$(TEMPDIR)/%.o: ../igntoolkit/wingetopt/%.cpp
-	$(Compile-Cpp-Unit)
-endif
 
 # User extended process
 
