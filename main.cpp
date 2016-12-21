@@ -2,8 +2,8 @@
 #include <iostream>
 #include <gen/systime.h>
 #include <gen/net/urlpar.h>
-#include <gen/net/socktcp.h>
 #include "cmdopt.h"
+#include "tcpstream.h"
 
 using namespace std;
 
@@ -55,14 +55,14 @@ bool ExtractHostAddr(TSocketAddr &addr, const string &url)
     return true;
 }
 //------------------------------------------------------------------------------
-bool ConnectHost(TSocketTCP &sock, const TSocketAddr &addr)
+bool ConnectHost(TNetStream &stream, const TSocketAddr &addr)
 {
-    bool res = sock.Connect(addr);
+    bool res = stream.Connect(addr);
     cout << "TCP connect: " << ( res ? "Succeed." : "Failed!" ) << endl;
     return res;
 }
 //------------------------------------------------------------------------------
-bool SendData(TSocketTCP &sock, const string &filename)
+bool SendData(TNetStream &stream, const string &filename)
 {
     FILE *srcfile = NULL;
 
@@ -75,7 +75,6 @@ bool SendData(TSocketTCP &sock, const string &filename)
         FILE *src = srcfile ? srcfile : stdin;
 
         cout << "Sending data..." << endl;
-        sock.SetBlockMode();
 
         size_t sentsz_total = 0;
         while( !feof(src) )
@@ -83,7 +82,7 @@ bool SendData(TSocketTCP &sock, const string &filename)
             uint8_t data[512];
             size_t  datasz = fread(data, 1, sizeof(data), src);
 
-            int sentsz = sock.Send(data, datasz);
+            int sentsz = stream.Send(data, datasz);
             if( sentsz <= 0 ) throw runtime_error("Send data failed!");
 
             sentsz_total += sentsz;
@@ -102,7 +101,7 @@ bool SendData(TSocketTCP &sock, const string &filename)
     return res;
 }
 //------------------------------------------------------------------------------
-bool ReceiveData(TSocketTCP &sock, const string &filename)
+bool ReceiveData(TNetStream &stream, const string &filename)
 {
     FILE *destfile = NULL;
 
@@ -115,13 +114,12 @@ bool ReceiveData(TSocketTCP &sock, const string &filename)
         FILE *dest = destfile ? destfile : stdout;
 
         cout << "Receiving data..." << endl;
-        sock.SetNonblockMode();
 
         size_t recvsz_total = 0;
         while(true)
         {
             uint8_t buf[512];
-            int recvsz = sock.Receive(buf, sizeof(buf));
+            int recvsz = stream.Recv(buf, sizeof(buf));
             if( recvsz > 0 )
             {
                 fwrite(buf, 1, recvsz, dest);
@@ -165,14 +163,14 @@ int main(int argc, char *argv[])
     if( !ExtractHostAddr(addr, cmdopts.hosturl) )
         return 1;
 
-    TSocketTCP sock;
-    if( !ConnectHost(sock, addr) )
+    TTcpStream stream;
+    if( !ConnectHost(stream, addr) )
         return 1;
 
-    if( cmdopts.needsend && !SendData(sock, cmdopts.srcfile) )
+    if( cmdopts.needsend && !SendData(stream, cmdopts.srcfile) )
         return 1;
 
-    if( cmdopts.needrecv && !ReceiveData(sock, cmdopts.destfile) )
+    if( cmdopts.needrecv && !ReceiveData(stream, cmdopts.destfile) )
         return 1;
 
     return 0;

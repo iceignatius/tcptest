@@ -39,6 +39,7 @@
 		<Unit filename="cmdopt.cpp" />
 		<Unit filename="cmdopt.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="netstream.h" />
 		<Unit filename="submod/genutil/gen/net/ipconst.h" />
 		<Unit filename="submod/genutil/gen/net/iptype.c">
 			<Option compilerVar="CC" />
@@ -68,6 +69,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="submod/genutil/gen/timeinf.h" />
+		<Unit filename="tcpstream.cpp">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tcpstream.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />
