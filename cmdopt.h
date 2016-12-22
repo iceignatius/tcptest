@@ -11,6 +11,7 @@ class TCmdOpt
 public:
     bool        needhelp;
     std::string hosturl;
+    bool        tlsmode;
     bool        needsend;
     bool        needrecv;
     std::string srcfile;

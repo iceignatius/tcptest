@@ -9,6 +9,7 @@ void TCmdOpt::LoadDefaults()
 {
     needhelp = false;
     hosturl  = "";
+    tlsmode  = false;
     needsend = false;
     needrecv = false;
     srcfile  = "";
@@ -20,6 +21,7 @@ void TCmdOpt::LoadArgs(int argc, char *argv[])
     struct option longopts[] =
     {
         { "help", no_argument      , NULL, 'h' },
+        { "tls" , no_argument      , NULL, 't' },
         { "send", optional_argument, NULL, 's' },
         { "recv", optional_argument, NULL, 'r' },
         { NULL  , 0                , NULL,  0  },
@@ -30,6 +32,10 @@ void TCmdOpt::LoadArgs(int argc, char *argv[])
     {
         switch( opt )
         {
+        case 't':
+            tlsmode = true;
+            break;
+
         case 's':
             needsend = true;
             srcfile  = optarg ? optarg : "";

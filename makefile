@@ -52,6 +52,7 @@ SRCS    += submod/genutil/gen/net/urlpar.c
 SRCS    += submod/genutil/gen/net/winwsa.c
 SRCS    += cmdopt.cpp
 SRCS    += tcpstream.cpp
+SRCS    += tlsstream.cpp
 SRCS    += main.cpp
 LIBS    :=
 ifeq ($(OS),Windows_NT)

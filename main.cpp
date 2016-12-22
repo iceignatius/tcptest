@@ -4,6 +4,7 @@
 #include <gen/net/urlpar.h>
 #include "cmdopt.h"
 #include "tcpstream.h"
+#include "tlsstream.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ void PrintHelp()
     cout << "Usage: tcptest [options] HOSTURL" << endl;
     cout << "Options:" << endl;
     cout << "  -h, --help          Print help message." << endl;
+    cout << "      --tls           Connect and communicate in SSL/TLS mode." << endl;
     cout << "      --send[=FILE]   Send data to the host after the connection be established." << endl;
     cout << "                      And the data will be read from the standard input" << endl;
     cout << "                      if no source file be specified." << endl;
@@ -55,14 +57,14 @@ bool ExtractHostAddr(TSocketAddr &addr, const string &url)
     return true;
 }
 //------------------------------------------------------------------------------
-bool ConnectHost(TNetStream &stream, const TSocketAddr &addr)
+bool ConnectHost(TNetStream *stream, const TSocketAddr &addr)
 {
-    bool res = stream.Connect(addr);
+    bool res = stream->Connect(addr);
     cout << "TCP connect: " << ( res ? "Succeed." : "Failed!" ) << endl;
     return res;
 }
 //------------------------------------------------------------------------------
-bool SendData(TNetStream &stream, const string &filename)
+bool SendData(TNetStream *stream, const string &filename)
 {
     FILE *srcfile = NULL;
 
@@ -82,7 +84,7 @@ bool SendData(TNetStream &stream, const string &filename)
             uint8_t data[512];
             size_t  datasz = fread(data, 1, sizeof(data), src);
 
-            int sentsz = stream.Send(data, datasz);
+            int sentsz = stream->Send(data, datasz);
             if( sentsz <= 0 ) throw runtime_error("Send data failed!");
 
             sentsz_total += sentsz;
@@ -101,7 +103,7 @@ bool SendData(TNetStream &stream, const string &filename)
     return res;
 }
 //------------------------------------------------------------------------------
-bool ReceiveData(TNetStream &stream, const string &filename)
+bool ReceiveData(TNetStream *stream, const string &filename)
 {
     FILE *destfile = NULL;
 
@@ -119,7 +121,7 @@ bool ReceiveData(TNetStream &stream, const string &filename)
         while(true)
         {
             uint8_t buf[512];
-            int recvsz = stream.Recv(buf, sizeof(buf));
+            int recvsz = stream->Recv(buf, sizeof(buf));
             if( recvsz > 0 )
             {
                 fwrite(buf, 1, recvsz, dest);
@@ -163,7 +165,10 @@ int main(int argc, char *argv[])
     if( !ExtractHostAddr(addr, cmdopts.hosturl) )
         return 1;
 
-    TTcpStream stream;
+    TTcpStream stream_tcp;
+    TTlsStream stream_tls;
+    TNetStream *stream = cmdopts.tlsmode ? &stream_tls : &stream_tcp;
+
     if( !ConnectHost(stream, addr) )
         return 1;
 

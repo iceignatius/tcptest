@@ -73,6 +73,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="tcpstream.h" />
+		<Unit filename="tlsstream.cpp" />
+		<Unit filename="tlsstream.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />
