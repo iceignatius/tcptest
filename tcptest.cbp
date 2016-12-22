@@ -34,6 +34,9 @@
 			<Add directory="submod/genutil" />
 		</Compiler>
 		<Linker>
+			<Add library="mbedtls" />
+			<Add library="mbedx509" />
+			<Add library="mbedcrypto" />
 			<Add library="rt" />
 		</Linker>
 		<Unit filename="cmdopt.cpp" />
