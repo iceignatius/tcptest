@@ -55,6 +55,9 @@ SRCS    += tcpstream.cpp
 SRCS    += tlsstream.cpp
 SRCS    += main.cpp
 LIBS    :=
+LIBS    += -lmbedtls
+LIBS    += -lmbedx509
+LIBS    += -lmbedcrypto
 ifeq ($(OS),Windows_NT)
 	LIBS += -lws2_32
 else
